@@ -10,19 +10,21 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('aluno', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->string('nome');
-            /* $table->string('nome', 100); quantidade de 100 caracteres */
-        });
-    }
-     /**
+{
+    Schema::create('componente', function (Blueprint $table) {
+        $table->id();
+        $table->timestamps();
+        $table->string('nome');
+        $table->dateTime('hora_inicio');
+        $table->dateTime('hora_fim');
+    });
+}
+
+    /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('aluno');
+        Schema::dropIfExists('componente');
     }
 };

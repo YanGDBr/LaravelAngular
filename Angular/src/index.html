@@ -1,26 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  </head>
+  <body>
+    
+    
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-3">
 
-<head>
-  <meta charset="utf-8" />
-  <title>Ionic App</title>
+                <div class="card shadow m-3">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="nome" class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="nome" name="nome" required>
+                        </div>
+                        <button class="btn btn-primary mt-3" id="btn-cadastrar">Cadastrar Aluno</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <base href="/" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script>
+        document.getElementById('btn-cadastrar').addEventListener('click', function() {
+            const nome = document.getElementById('nome').value;
 
-  <meta name="color-scheme" content="light dark" />
-  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="format-detection" content="telephone=no" />
-  <meta name="msapplication-tap-highlight" content="no" />
-
-  <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
-
-  <!-- add to homescreen for ios -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-</head>
-
-<body>
-  <app-root></app-root>
-</body>
-
+            fetch('http://127.0.0.1:8000/api/aluno/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nome })
+            })
+            .then(response => response.json())
+            .then(data => {
+                //tratar o erro recebido do AlunoController
+                if (data.errors) {
+                    console.log('Erros de validação:', data.errors);
+                    alert('Erro de validação. Olhe o console para detalhes.');
+                } else {
+                    console.log('Aluno cadastrado com sucesso:', data);
+                    alert('Aluno cadastrado com sucesso!');
+                }
+            })
+            .catch(errors => {
+                console.log('Erro ao cadastrar aluno:', errors);
+                alert('Erro ao cadastrar aluno. Olhe o console para detalhes.');
+            });
+        });
+    </script>
+  </body>
 </html>
