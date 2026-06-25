@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\ProfessorModel as Professor;
 
 class ProfessorController extends Controller
 {
@@ -24,36 +25,26 @@ class ProfessorController extends Controller
             'telefone.digits_between' => 'O telefone deve ter entre 10 e 11 dígitos numéricos.',
         ]);
 
-        $professor = new \App\Models\ProfessorModel();
-        $professor::create($dados->only('nome', 'email', 'telefone'));
+        $professor = Professor::create($dados->only('nome', 'email', 'telefone'));
 
-        return response()->json($professor->all(), 200);
+        return response()->json($professor, 201);
     }
 
-    function remove(string $id)
+    function remover(string $id)
     {
-        if (!is_numeric($id) || $id <= 0) {
-            return response()->json(['erro' => 'ID inválido.'], 422);
-        }
+        $professor = Professor::find($id);
 
-        $professor = new \App\Models\ProfessorModel();
-        $existe = $professor::find($id);
-
-        if (!$existe) {
+        if (!$professor) {
             return response()->json(['erro' => 'Professor não encontrado.'], 404);
         }
 
-        $professor::destroy($id);
+        $professor->delete();
 
-        return response()->json($professor->all(), 200);
+        return response()->json(['mensagem' => 'Professor removido com sucesso!'], 200); 
     }
 
     function atualizar(Request $dados, string $id)
     {
-        if (!is_numeric($id) || $id <= 0) {
-            return response()->json(['erro' => 'ID inválido.'], 422);
-        }
-
         $dados->validate([
             'nome'     => 'required|min:3|max:255|regex:/^[a-zA-ZÀ-ÿ\s]+$/',
             'email'    => 'required|email|max:255',
@@ -70,15 +61,14 @@ class ProfessorController extends Controller
             'telefone.digits_between' => 'O telefone deve ter entre 10 e 11 dígitos numéricos.',
         ]);
 
-        $professor = new \App\Models\ProfessorModel();
-        $existe = $professor::find($id);
+        $professor = Professor::find($id);
 
-        if (!$existe) {
+        if (!$professor) {
             return response()->json(['erro' => 'Professor não encontrado.'], 404);
         }
 
-        $professor::where('id', $id)->update($dados->only('nome', 'email', 'telefone'));
+        $professor->update($dados->only('nome', 'email', 'telefone'));
 
-        return response()->json($professor->all(), 200);
+        return response()->json($professor, 200);
     }
 }

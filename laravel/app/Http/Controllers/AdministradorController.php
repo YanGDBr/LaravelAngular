@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\AdministradorModel as Administrador;
 
 class AdministradorController extends Controller
 {
@@ -39,36 +40,26 @@ class AdministradorController extends Controller
             'status.in'         => 'O status deve ser: ativo ou inativo.',
         ]);
 
-        $admin = new \App\Models\AdministradorModel();
-        $admin::create($dados->only('nome', 'email', 'telefone', 'cpf', 'usuario', 'senha', 'status'));
+        $admin = Administrador::create($dados->only('nome', 'email', 'telefone', 'cpf', 'usuario', 'senha', 'status'));
 
-        return response()->json($admin->all(), 200);
+        return response()->json($admin, 201);
     }
 
-    function remove(string $id)
+    function remover(string $id)
     {
-        if (!is_numeric($id) || $id <= 0) {
-            return response()->json(['erro' => 'ID inválido.'], 422);
-        }
+        $admin = Administrador::find($id);
 
-        $admin = new \App\Models\AdministradorModel();
-        $existe = $admin::find($id);
-
-        if (!$existe) {
+        if (!$admin) {
             return response()->json(['erro' => 'Administrador não encontrado.'], 404);
         }
 
-        $admin::destroy($id);
+        $admin->delete();
 
-        return response()->json($admin->all(), 200);
+        return response()->json(['mensagem' => 'Administrador removido com sucesso!'], 200); 
     }
 
     function atualizar(Request $dados, string $id)
     {
-        if (!is_numeric($id) || $id <= 0) {
-            return response()->json(['erro' => 'ID inválido.'], 422);
-        }
-
         $dados->validate([
             'nome'     => 'required|min:3|max:255|regex:/^[a-zA-ZÀ-ÿ\s]+$/',
             'email'    => 'required|email|max:255',
@@ -100,15 +91,14 @@ class AdministradorController extends Controller
             'status.in'         => 'O status deve ser: ativo ou inativo.',
         ]);
 
-        $admin = new \App\Models\AdministradorModel();
-        $existe = $admin::find($id);
+        $admin = Administrador::find($id);
 
-        if (!$existe) {
+        if (!$admin) {
             return response()->json(['erro' => 'Administrador não encontrado.'], 404);
         }
 
-        $admin::where('id', $id)->update($dados->only('nome', 'email', 'telefone', 'cpf', 'usuario', 'senha', 'status'));
+        $admin->update($dados->only('nome', 'email', 'telefone', 'cpf', 'usuario', 'senha', 'status'));
 
-        return response()->json($admin->all(), 200);
+        return response()->json($admin, 200);
     }
 }

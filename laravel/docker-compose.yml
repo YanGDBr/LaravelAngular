@@ -1,0 +1,11 @@
+# Meu PHP é 8.5, e as dependencias são do php 8.3, então usei o docker
+services:
+  app:
+    build: .
+    container_name: laravel_projeto
+    volumes:
+      - .:/var/www
+    ports:
+      - "8000:8000"
+    tty: true
+    stdin_open: true

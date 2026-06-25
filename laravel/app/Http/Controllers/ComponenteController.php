@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\ComponenteModel as Componente;
 
 class ComponenteController extends Controller
 {
@@ -23,36 +24,26 @@ class ComponenteController extends Controller
             'hora_fim.after'       => 'A hora de fim deve ser posterior à hora de início.',
         ]);
 
-        $componente = new \App\Models\ComponenteModel();
-        $componente::create($dados->only('nome', 'hora_inicio', 'hora_fim'));
+        $componente = Componente::create($dados->only('nome', 'hora_inicio', 'hora_fim'));
 
-        return response()->json($componente->all(), 200);
+        return response()->json($componente, 201);
     }
 
-    function remove(string $id)
+    function remover(string $id)
     {
-        if (!is_numeric($id) || $id <= 0) {
-            return response()->json(['erro' => 'ID inválido.'], 422);
-        }
+        $componente = Componente::find($id);
 
-        $componente = new \App\Models\ComponenteModel();
-        $existe = $componente::find($id);
-
-        if (!$existe) {
+        if (!$componente) {
             return response()->json(['erro' => 'Componente não encontrado.'], 404);
         }
 
-        $componente::destroy($id);
+        $componente->delete();
 
-        return response()->json($componente->all(), 200);
+        return response()->json(['mensagem' => 'Componente removido com sucesso!'], 200); 
     }
 
     function atualizar(Request $dados, string $id)
     {
-        if (!is_numeric($id) || $id <= 0) {
-            return response()->json(['erro' => 'ID inválido.'], 422);
-        }
-
         $dados->validate([
             'nome'        => 'required|min:3|max:255',
             'hora_inicio' => 'required|date_format:Y-m-d H:i:s',
@@ -68,15 +59,14 @@ class ComponenteController extends Controller
             'hora_fim.after'       => 'A hora de fim deve ser posterior à hora de início.',
         ]);
 
-        $componente = new \App\Models\ComponenteModel();
-        $existe = $componente::find($id);
+        $componente = Componente::find($id);
 
-        if (!$existe) {
+        if (!$componente) {
             return response()->json(['erro' => 'Componente não encontrado.'], 404);
         }
 
-        $componente::where('id', $id)->update($dados->only('nome', 'hora_inicio', 'hora_fim'));
+        $componente->update($dados->only('nome', 'hora_inicio', 'hora_fim'));
 
-        return response()->json($componente->all(), 200);
+        return response()->json($componente, 200);
     }
 }

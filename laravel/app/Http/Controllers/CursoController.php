@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\CursoModel as Curso;
 
 class CursoController extends Controller
 {
@@ -20,36 +21,26 @@ class CursoController extends Controller
             'periodo.in'       => 'O período deve ser: Matutino, Vespertino, Noturno ou Integral.',
         ]);
 
-        $curso = new \App\Models\CursoModel();
-        $curso::create($dados->only('nome', 'periodo'));
+        $curso = Curso::create($dados->only('nome', 'periodo'));
 
-        return response()->json($curso->all(), 200);
+        return response()->json($curso, 201);
     }
 
-    function remove(string $id)
+    function remover(string $id)
     {
-        if (!is_numeric($id) || $id <= 0) {
-            return response()->json(['erro' => 'ID inválido.'], 422);
-        }
+        $curso = Curso::find($id);
 
-        $curso = new \App\Models\CursoModel();
-        $existe = $curso::find($id);
-
-        if (!$existe) {
+        if (!$curso) {
             return response()->json(['erro' => 'Curso não encontrado.'], 404);
         }
 
-        $curso::destroy($id);
+        $curso->delete();
 
-        return response()->json($curso->all(), 200);
+        return response()->json(['mensagem' => 'Curso removido com sucesso!'], 200); 
     }
 
     function atualizar(Request $dados, string $id)
     {
-        if (!is_numeric($id) || $id <= 0) {
-            return response()->json(['erro' => 'ID inválido.'], 422);
-        }
-
         $dados->validate([
             'nome'    => 'required|min:3|max:255|regex:/^[a-zA-ZÀ-ÿ\s]+$/',
             'periodo' => 'required|in:Matutino,Vespertino,Noturno,Integral',
@@ -62,15 +53,14 @@ class CursoController extends Controller
             'periodo.in'       => 'O período deve ser: Matutino, Vespertino, Noturno ou Integral.',
         ]);
 
-        $curso = new \App\Models\CursoModel();
-        $existe = $curso::find($id);
+        $curso = Curso::find($id);
 
-        if (!$existe) {
+        if (!$curso) {
             return response()->json(['erro' => 'Curso não encontrado.'], 404);
         }
 
-        $curso::where('id', $id)->update($dados->only('nome', 'periodo'));
+        $curso->update($dados->only('nome', 'periodo'));
 
-        return response()->json($curso->all(), 200);
+        return response()->json($curso, 200);
     }
 }

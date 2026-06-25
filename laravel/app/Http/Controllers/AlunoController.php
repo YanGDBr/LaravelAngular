@@ -3,68 +3,58 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\AlunoModel as Aluno;
 
 class AlunoController extends Controller
 {
     function add(Request $dados)
     {
         $dados->validate([
-            'nome' => 'required|min:3|max:255|regex:/^[a-zA-ZÀ-ÿ\s]+$/',
+            'nome' => 'required|min:3|max:255',
         ], [
             'nome.required' => 'O campo nome é obrigatório.',
             'nome.min'      => 'O nome deve ter no mínimo 3 caracteres.',
             'nome.max'      => 'O nome deve ter no máximo 255 caracteres.',
-            'nome.regex'    => 'O nome deve conter apenas letras e espaços.',
         ]);
 
-        $aluno = new \App\Models\AlunoModel();
-        $aluno::create($dados->only('nome'));
+        $aluno = Aluno::create($dados->only('nome'));
 
-        return response()->json($aluno->all(), 200);
+        return response()->json($aluno, 201);
     }
 
-    function remove(string $id)
+    function remover(string $id)
     {
-        if (!is_numeric($id) || $id <= 0) {
-            return response()->json(['erro' => 'ID inválido.'], 422);
-        }
+        $aluno = Aluno::find($id);
 
-        $aluno = new \App\Models\AlunoModel();
-        $existe = $aluno::find($id);
-
-        if (!$existe) {
+        if (!$aluno) {
             return response()->json(['erro' => 'Aluno não encontrado.'], 404);
         }
 
-        $aluno::destroy($id);
+        $aluno->delete();
 
-        return response()->json($aluno->all(), 200);
+        return response()->json(['mensagem' => 'Aluno removido com sucesso!'], 200); 
     }
+
 
     function atualizar(Request $dados, string $id)
     {
-        if (!is_numeric($id) || $id <= 0) {
-            return response()->json(['erro' => 'ID inválido.'], 422);
-        }
 
         $dados->validate([
-            'nome' => 'required|min:3|max:255|regex:/^[a-zA-ZÀ-ÿ\s]+$/',
+            'nome' => 'required|min:3|max:255',
         ], [
             'nome.required' => 'O campo nome é obrigatório.',
             'nome.min'      => 'O nome deve ter no mínimo 3 caracteres.',
             'nome.max'      => 'O nome deve ter no máximo 255 caracteres.',
-            'nome.regex'    => 'O nome deve conter apenas letras e espaços.',
         ]);
 
-        $aluno = new \App\Models\AlunoModel();
-        $existe = $aluno::find($id);
+        $aluno = Aluno::find($id);
 
-        if (!$existe) {
+        if (!$aluno) {
             return response()->json(['erro' => 'Aluno não encontrado.'], 404);
         }
 
-        $aluno::where('id', $id)->update($dados->only('nome'));
+        $aluno->update($dados->only('nome'));
 
-        return response()->json($aluno->all(), 200);
+        return response()->json($aluno, 200);
     }
 }
